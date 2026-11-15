@@ -46,7 +46,6 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
         
-        /* Dashboard */
         .dashboard { display: flex; flex-direction: column; gap: 20px; align-items: center; }
         .categories-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; width: 100%; }
         
@@ -88,7 +87,6 @@
             100% { box-shadow: 0 0 0 0 rgba(198, 40, 40, 0); }
         }
 
-        /* Timer */
         #timer-container {
             display: none;
             background: var(--text);
@@ -105,7 +103,6 @@
         .timer-warning { background: var(--error) !important; animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0.5; } }
         
-        /* Quiz Section */
         #quiz-section { display: none; }
         .question-header {
             display: flex;
@@ -123,7 +120,7 @@
             font-weight: bold;
             font-size: 14px;
         }
-        .question-text { font-size: 22px; font-weight: bold; margin-bottom: 25px; line-height: 1.6; color: #1a237e; direction: ltr; text-align: right; }
+        .question-text { font-size: 22px; font-weight: bold; margin-bottom: 25px; line-height: 1.6; color: #1a237e; direction: rtl; text-align: right; }
         
         .options { display: flex; flex-direction: column; gap: 12px; }
         .option-btn {
@@ -169,7 +166,6 @@
         .nav-btn.next { background: var(--accent); color: var(--text); }
         .nav-btn.next:hover { background: #ffca28; }
         
-        /* Result Section */
         #result-section { display: none; text-align: center; }
         .score-circle {
             width: 180px;
@@ -200,10 +196,9 @@
     </header>
 
     <div class="container">
-        <!-- Dashboard -->
         <div id="dashboard" class="dashboard">
             <button class="exam-card" onclick="startExam()">🏆 بدء الاختبار الشامل (مؤقت ومحسوب الدرجات) 🏆</button>
-            <h3 style="margin: 5px 0; color: #5c6bc0;">أو تدرب حسب القسم (أسئلة متقدمة):</h3>
+            <h3 style="margin: 5px 0; color: #5c6bc0;">أو تدرب حسب القسم (متجدد تلقائياً):</h3>
             <div class="categories-grid">
                 <button class="category-card" onclick="startPractice('algebra')">الجبر المتقدم</button>
                 <button class="category-card" onclick="startPractice('geometry')">الهندسة والتشابه</button>
@@ -212,34 +207,25 @@
             </div>
         </div>
 
-        <!-- Timer -->
-        <div id="timer-container">⏱️ <span id="time-left">15:00</span></div>
+        <div id="timer-container">⏱️ <span id="time-left">20:00</span></div>
 
-        <!-- Quiz Section -->
         <div id="quiz-section">
             <div class="question-header">
                 <span id="q-category" class="category-badge">القسم</span>
-                <span id="q-counter">السؤال 1 / 10</span>
+                <span id="q-counter">السؤال 1</span>
             </div>
-            
             <div id="q-text" class="question-text">نص السؤال هنا</div>
-            
-            <div id="options-container" class="options">
-                <!-- Options injected here -->
-            </div>
-            
+            <div id="options-container" class="options"></div>
             <div id="feedback-box" class="feedback">
                 <strong id="feedback-title"></strong><br>
                 <span id="feedback-text"></span>
             </div>
-            
             <div class="controls">
                 <button class="nav-btn" onclick="forceEndExam()">إنهاء / العودة</button>
                 <button id="next-btn" class="nav-btn next" onclick="nextQuestion()" style="display:none;">السؤال التالي ⬅️</button>
             </div>
         </div>
 
-        <!-- Result Section -->
         <div id="result-section">
             <h2 id="result-title">نتيجة الاختبار</h2>
             <div class="score-circle">
@@ -255,32 +241,58 @@
     </div>
 
     <script>
-        // بنك الأسئلة بمستوى الأولمبياد الفعلي
+        /* البنك الشامل والموسع (مستخرج حصرياً من حقيبة نسمو المعتمدة) */
         const questionBank = {
             algebra: [
-                { q: "إذا كان (a, b, c) أعداداً ثابتة موجبة، وحل المعادلة: (x - a - b)/c + (x - b - c)/a + (x - c - a)/b = 3، فما هي قيمة x؟", options: ["x = a + b + c", "x = abc", "x = 1", "لا يوجد حل حقيقي"], answer: 0, hint: "بإرجاع الـ 3 كـ (-1) لكل كسر وتوحيد المقامات، يصبح البسط في كل كسر (x - a - b - c). بأخذ هذا القوس كعامل مشترك، نجد أن x = a + b + c." },
-                { q: "إذا علمت أن x = 1, y = 2 هو حل للنظام: ax + by = 7 وَ bx + cy = 5. فما العلاقة بين a و c؟", options: ["4a - c = 9", "a + c = 5", "c - 2a = 7", "2a + c = 3"], answer: 0, hint: "بالتعويض بـ x=1, y=2: المعادلة الأولى a + 2b = 7 ومنها b = (7-a)/2. المعادلة الثانية b + 2c = 5. بالتعويض عن b ينتج (7-a)/2 + 2c = 5، بالضرب في 2 وتبسيطها نجد 4c - a = 3، ومن التلاعب الجبري في الخيارات نصل للقيمة 4a - c = 9 في أحد حالات النظام المعطى." },
-                { q: "لدينا العدد 1234512345123451234512345. إذا كان بإمكانك إزالة عشر خانات منه، فما أكبر عدد يمكنك الحصول عليه؟", options: ["553451234512345", "543215432154321", "555551234512345", "533451234512345"], answer: 0, hint: "لجعل العدد أكبر ما يمكن، يجب أن تكون الخانات الأولى من اليسار أكبر ما يمكن. نحذف أول 4 خانات (1234) ليصبح الأول 5، ثم نحذف (1234) التالية ليصبح الثاني 5، فيتبقى 553451234512345." },
-                { q: "نظام المعادلات: kx - y = -1/3 وَ 3y = 1 - 6x. ما قيمة k التي تجعل النظام ليس له حل؟", options: ["k = -2", "k = 2", "k = 1/2", "لا توجد قيمة لـ k"], answer: 3, hint: "النظام يكتب: kx - y = -1/3 و 6x + 3y = 1. ليكون النظام بدون حل يجب أن تتساوى الميول وتختلف النواتج. لكن بقسمة المعادلة الثانية على -3 نجد -2x - y = -1/3. إذا كانت k = -2 فإن المعادلتين متطابقتان تماماً (عدد لا نهائي من الحلول). لذا لا توجد قيمة لـ k تجعل النظام مستحيلاً." }
+                { q: "إذا كانت 120% من عدد ما هي 36، فما هو هذا العدد؟", options: [{text:"30", isCorrect:true}, {text:"25", isCorrect:false}, {text:"40", isCorrect:false}, {text:"43.2", isCorrect:false}], hint: "بتبسيط 120/100 إلى 6/5، تصبح 6س/5 = 36، إذن س = 30." },
+                { q: "تحول سعر سلعة من 2890 ريالاً إلى 2023 ريالاً. ما هي نسبة التخفيض؟", options: [{text:"30%", isCorrect:true}, {text:"25%", isCorrect:false}, {text:"35%", isCorrect:false}, {text:"40%", isCorrect:false}], hint: "مقدار النقص هو 867. النسبة = (867 / 2890) × 100 = 30%." },
+                { q: "أحضرت نورا 60 قطعة بسكويت، أعطت معلماتها 40% منها، و 25% من الباقي لصديقاتها، وأكلت ثلث ما تبقى. كم قطعة بقيت معها؟", options: [{text:"18 قطعة", isCorrect:true}, {text:"15 قطعة", isCorrect:false}, {text:"20 قطعة", isCorrect:false}, {text:"24 قطعة", isCorrect:false}], hint: "للمعلمات 24 (يتبقى 36). للصديقات 25% من 36 = 9 (يتبقى 27). أكلت الثلث يعني 9، فالباقي النهائي 18." },
+                { q: "إذا كانت النسبة بين قياس زوايا خماسي هي 2 : 3 : 4 : 5 : 6، فما قياس الزاوية الكبرى؟", options: [{text:"162 درجة", isCorrect:true}, {text:"150 درجة", isCorrect:false}, {text:"144 درجة", isCorrect:false}, {text:"172 درجة", isCorrect:false}], hint: "مجموع زوايا الخماسي 540 درجة. مجموع الأجزاء = 20. قيمة الجزء = 540 ÷ 20 = 27. الزاوية الكبرى = 6 × 27 = 162 درجة." },
+                { q: "زيد طول مستطيل بنسبة 50% وعرضه بنسبة 20%. ما نسبة الزيادة في مساحته؟", options: [{text:"80%", isCorrect:true}, {text:"70%", isCorrect:false}, {text:"100%", isCorrect:false}, {text:"60%", isCorrect:false}], hint: "المساحة الجديدة = 1.5 الطول × 1.2 العرض = 1.80 من المساحة الأصلية. أي أن الزيادة هي 80%." },
+                { q: "في كل يوم 20% من السمك يباع. إذا بقي 2000 سمكة نهاية يوم الثلاثاء، كم كان العدد بداية يوم الإثنين؟", options: [{text:"3125 سمكة", isCorrect:true}, {text:"2500 سمكة", isCorrect:false}, {text:"3000 سمكة", isCorrect:false}, {text:"4000 سمكة", isCorrect:false}], hint: "المتبقي كل يوم هو 80% (أو 0.8). إذن 0.8 × 0.8 × س = 2000. أي 0.64 س = 2000، ومنها س = 3125." },
+                { q: "عددان مجموعهما 42 والفرق بينهما 8، فما هو العدد الأكبر؟", options: [{text:"25", isCorrect:true}, {text:"17", isCorrect:false}, {text:"21", isCorrect:false}, {text:"34", isCorrect:false}], hint: "لإيجاد الأكبر، نجمع (المجموع + الفرق) ونقسم على 2. (42+8)/2 = 25." },
+                { q: "حل النظام: س + ص = 13، وَ س - ص = 7. أوجد قيمة س؟", options: [{text:"10", isCorrect:true}, {text:"3", isCorrect:false}, {text:"20", isCorrect:false}, {text:"6", isCorrect:false}], hint: "بجمع المعادلتين تختفي ص: 2س = 20، إذن س = 10." },
+                { q: "حل النظام: س + ص = 14، وَ س - ص = 2. أوجد قيمة س؟", options: [{text:"8", isCorrect:true}, {text:"6", isCorrect:false}, {text:"16", isCorrect:false}, {text:"12", isCorrect:false}], hint: "بجمع المعادلتين: 2س = 16، إذن س = 8." },
+                { q: "حل نظام المعادلات: x + y = 8, y + z = 4, z + x = 6. أوجد قيمة x؟", options: [{text:"5", isCorrect:true}, {text:"3", isCorrect:false}, {text:"1", isCorrect:false}, {text:"4", isCorrect:false}], hint: "بجمع المعادلات الثلاث: 2(x+y+z) = 18، إذن x+y+z = 9. وبما أن y+z = 4، فإن x = 9 - 4 = 5." },
+                { q: "إذا كان (a, b, c) أعداداً ثابتة موجبة، وحل المعادلة: (x - a - b)/c + (x - b - c)/a + (x - c - a)/b = 3، فما هي قيمة x؟", options: [{text:"x = a + b + c", isCorrect:true}, {text:"x = abc", isCorrect:false}, {text:"x = 1", isCorrect:false}, {text:"لا يوجد حل حقيقي", isCorrect:false}], hint: "بإرجاع الـ 3 كـ (-1) لكل كسر وتوحيد المقامات، يظهر البسط (x - a - b - c) كعامل مشترك. بمساواته بالصفر نجد أن x = a + b + c." },
+                { q: "نظام المعادلات: kx - y = -1/3 وَ 3y = 1 - 6x. ما قيمة k التي تجعل النظام ليس له حل؟", options: [{text:"لا توجد قيمة لـ k", isCorrect:true}, {text:"k = -2", isCorrect:false}, {text:"k = 2", isCorrect:false}, {text:"k = 1/2", isCorrect:false}], hint: "بقسمة الثانية على -3 نجد -2x - y = -1/3. إذا كانت k = -2 فالمعادلتان متطابقتان (عدد لا نهائي من الحلول). لذا يستحيل إيجاد قيمة تجعلهما متوازيين فقط (بدون حل)." },
+                { q: "لدينا العدد 1234512345123451234512345. إذا كان بإمكانك إزالة عشر خانات منه، فما أكبر عدد يمكنك الحصول عليه؟", options: [{text:"553451234512345", isCorrect:true}, {text:"543215432154321", isCorrect:false}, {text:"555551234512345", isCorrect:false}, {text:"533451234512345", isCorrect:false}], hint: "لجعل العدد أكبر ما يمكن، نحذف الخانات الصغيرة من اليسار. نحذف (1234) ليصبح الأول 5، ثم نحذف (1234) التالية ليصبح الثاني 5، يتبقى 553451234512345." }
             ],
             geometry: [
-                { q: "في تقدير ارتفاع عمود كرة السلة، وقف لاعب طوله 2م بحيث انطبقت نهاية ظله مع نهاية ظل العمود. إذا كان طول ظل اللاعب (DE) 1.6م، والمسافة بين اللاعب والعمود (EF) 2.8م. أوجد طول العمود.", options: ["4.4 م", "5.5 م", "6.2 م", "7.1 م"], answer: 1, hint: "طول ظل العمود الكلي = 1.6 + 2.8 = 4.4م. باستخدام تشابه المثلثات: (طول العمود / 2) = (4.4 / 1.6). إذن طول العمود = 2 × 2.75 = 5.5 متر." },
-                { q: "في مثلثين ABC و ACD متشابهين. إذا رسم مستقيم يوازي ضلعاً من أضلاع المثلث ويقطع الضلعين الآخرين، فإنه يقسمهما إلى:", options: ["قطع متساوية", "قطع أطوالها متناسبة", "قطع مساحتها متطابقة", "لا يمكن التحديد"], answer: 1, hint: "نظرية طالس الأساسية للتشابه (نظرية 7): المستقيم الموازي لضلع في مثلث يقسم الضلعين الآخرين إلى قطع أطوالها متناسبة." },
-                { q: "مربع مكون من 5 مستطيلات متطابقة المحيط. ما النسبة بين مساحة أحد المستطيلات المظللة ومساحة أحد المستطيلات غير المظللة؟ (سؤال التحدي 4)", options: ["1 : 2", "3 : 7", "4 : 9", "2 : 5"], answer: 1, hint: "بفرض أبعاد المستطيلات وتوحيد المحيط داخل المربع، نصل من خلال المعادلات إلى أن نسبة المساحة هي 3 : 7." },
-                { q: "هل يتشابه مثلث قائم الزاوية ومثلث حاد الزوايا؟", options: ["دائماً", "أحياناً", "التشابه مستحيل", "إذا تساوت المساحة"], answer: 2, hint: "مسلمة التشابه تتطلب تساوي الزوايا (AAA). بما أن أحدهما يحتوي زاوية 90 درجة والآخر جميع زواياه أقل من 90، فمن المستحيل أن تتساوى الزوايا." }
+                { q: "النسبة بين مساحتي مضلعين متشابهين تساوي 16 : 25. ما هي نسبة التشابه بين المحيطين؟", options: [{text:"4 : 5", isCorrect:true}, {text:"8 : 12.5", isCorrect:false}, {text:"16 : 25", isCorrect:false}, {text:"256 : 625", isCorrect:false}], hint: "نسبة المحيطات هي نفس نسبة الأضلاع (النسبة الخطية). ونسبة المساحات هي المربع. إذن نأخذ الجذر التربيعي لـ 16:25 لنحصل على 4:5." },
+                { q: "هل يتشابه مثلثان متطابقا الأضلاع؟", options: [{text:"دائماً متشابهان", isCorrect:true}, {text:"أحياناً متشابهان", isCorrect:false}, {text:"التشابه مستحيل", isCorrect:false}, {text:"فقط إذا تساوت المساحة", isCorrect:false}], hint: "المثلثات متطابقة الأضلاع زواياها دائماً 60 درجة، ولتطابق الزوايا (AAA) فهما دائماً متشابهان." },
+                { q: "هل المربعان متشابهان دائماً؟", options: [{text:"دائماً متشابهان", isCorrect:true}, {text:"أحياناً متشابهان", isCorrect:false}, {text:"مستحيل", isCorrect:false}, {text:"لا توجد معلومات كافية", isCorrect:false}], hint: "المربعات زواياها 90 درجة دائماً وأضلاعها متناسبة، لذا فهي دائماً متشابهة." },
+                { q: "هل يتشابه مثلث قائم الزاوية ومثلث حاد الزوايا؟", options: [{text:"التشابه مستحيل", isCorrect:true}, {text:"دائماً", isCorrect:false}, {text:"أحياناً", isCorrect:false}, {text:"إذا تساوت المساحة", isCorrect:false}], hint: "التشابه (AAA) يتطلب تساوي الزوايا. أحدهما به زاوية 90 والآخر زواياه أقل من 90، فمن المستحيل أن تتطابق." },
+                { q: "في تقدير ارتفاع عمود سلة، انطبقت نهاية ظل لاعب (طوله 2م) مع ظل العمود. ظل اللاعب 1.6م ومسافته للعمود 2.8م. ما طول العمود؟", options: [{text:"5.5 م", isCorrect:true}, {text:"4.4 م", isCorrect:false}, {text:"6.2 م", isCorrect:false}, {text:"7.1 م", isCorrect:false}], hint: "ظل العمود الكلي = 1.6 + 2.8 = 4.4م. بالتشابه: طول العمود / 2 = 4.4 / 1.6. طول العمود = 5.5 متر." },
+                { q: "إذا كان طول صورة بناية في الفيلم 0.55 سم وطولها على الشاشة 2.2 م. والمسافة بين المصباح والشاشة 24 م. فكم المسافة بين المصباح والفيلم؟", options: [{text:"6 سم", isCorrect:true}, {text:"5.5 سم", isCorrect:false}, {text:"0.22 سم", isCorrect:false}, {text:"4.4 سم", isCorrect:false}], hint: "بالتشابه: (المسافة للفيلم / 2400 سم) = (0.55 سم / 220 سم). المسافة = (0.55 × 2400) / 220 = 6 سم." },
+                { q: "على الشكل، النهر حوافه متوازية، IV = 63 م، VE = 20 م، BE = 15 م. أوجد عرض النهر IR.", options: [{text:"47.25 م", isCorrect:true}, {text:"45.5 م", isCorrect:false}, {text:"50 م", isCorrect:false}, {text:"42.75 م", isCorrect:false}], hint: "باستخدام تشابه المثلثين: IR / 15 = 63 / 20. إذن IR = (15 × 63) / 20 = 47.25 متر." },
+                { q: "مربع مكون من 5 مستطيلات متطابقة المحيط. ما النسبة بين مساحة أحد المستطيلات المظللة ومساحة أحد المستطيلات غير المظللة؟", options: [{text:"3 : 7", isCorrect:true}, {text:"1 : 2", isCorrect:false}, {text:"4 : 9", isCorrect:false}, {text:"2 : 5", isCorrect:false}], hint: "بفرض أبعاد المستطيلات وتوحيد المحيط داخل المربع، نصل من خلال حل المعادلات الجبرية للأبعاد إلى أن النسبة هي 3 : 7." },
+                { q: "إذا رسم مستقيم يوازي ضلعاً من أضلاع المثلث ويقطع الضلعين الآخرين، فإنه:", options: [{text:"يقسمهما إلى قطع أطوالها متناسبة", isCorrect:true}, {text:"يقسمهما إلى قطع متساوية", isCorrect:false}, {text:"ينصف الزاوية المقابلة", isCorrect:false}, {text:"لا يغير من خصائص المثلث", isCorrect:false}], hint: "هذا نص نظرية طالس الأساسية للتشابه (نظرية 7 في الحقيبة)." },
+                { q: "في مثلثين متشابهين، إذا كان ارتفاع الأول نصف ارتفاع الثاني، فما العلاقة بين مساحتيهما؟", options: [{text:"مساحة الأول ربع مساحة الثاني", isCorrect:true}, {text:"المساحة تتنصف", isCorrect:false}, {text:"متساويتان", isCorrect:false}, {text:"لا علاقة بينهما", isCorrect:false}], hint: "نسبة الارتفاعات (1/2) تمثل نسبة التشابه. نسبة المساحات هي مربع نسبة التشابه، إذن (1/2)² = 1/4 (الربع)." }
             ],
             number_theory: [
-                { q: "إذا كان n عدد صحيح موجب بحيث n+3 و n+7 عددان أوليان، أوجد باقي قسمة n على 3.", options: ["0", "1", "2", "لا يمكن التحديد"], answer: 1, hint: "إذا كان n يقبل القسمة على 3 فباقي n+3 هو 0 (أي يقبل على 3 وليس أولياً). إذا كان باقي n هو 2، فإن n+7 باقيه 0 (ليس أولياً). إذن يجب أن يكون باقي قسمة n على 3 هو 1 حصراً." },
-                { q: "عددان أوليان p, q يحققان 5p + 7q = 129. ما هي القيمة الممكنة للمقدار p + q؟", options: ["23", "25", "29", "19 أو 25"], answer: 3, hint: "بالتجريب للأعداد الأولية: إذا كانت q=2 فإن 5p = 115 ومنها p=23 (مجموعهم 25). وإذا كانت p=2 فإن 7q=119 ومنها q=17 (مجموعهم 19). إذن القيمتان ممكنتان." },
-                { q: "إذا كان p عدداً أولياً، والعدد 2p+1 أولياً أيضاً. فهل العدد 4p+1 أولي أم مؤلف؟ (علماً بأن p أكبر من أو يساوي 5)", options: ["أولي دائماً", "مؤلف دائماً", "قد يكون أولياً أو مؤلفاً", "لا توجد أعداد تحقق ذلك"], answer: 1, hint: "بما أن p أولي ≥ 5، فإنه لا يقبل القسمة على 3. إذا كان p ≡ 1 (mod 3)، فإن 2p+1 ≡ 0 (مرفوض لأنه أولي). إذن يجب أن يكون p ≡ 2 (mod 3). عندها 4p+1 ≡ 4(2)+1 = 9 ≡ 0 (mod 3). لذا 4p+1 يقبل القسمة على 3 دائماً فهو مؤلف!" },
-                { q: "العدد 3600 يمكن كتابته على الصورة 2^a × 3^b × 4^c × 5^d حيث a,b,c,d أعداد صحيحة موجبة ومجموعها 7. فما قيمة c؟", options: ["1", "2", "3", "4"], answer: 0, hint: "التحليل الأساسي لـ 3600 هو 2^4 × 3^2 × 5^2. مجموع الأسس هنا 8 (وليس 7). لتخفيض المجموع لـ 7، ندمج اثنين من (2) لتصبح (4^1). أي: 2^2 × 3^2 × 4^1 × 5^2. إذن c = 1." }
+                { q: "إذا جمعنا عددين فرديين، فإن الناتج عدد:", options: [{text:"زوجي", isCorrect:true}, {text:"فردي", isCorrect:false}, {text:"أولي", isCorrect:false}, {text:"مؤلف", isCorrect:false}], hint: "مثال: 3 + 5 = 8. مجموع أي عددين فرديين يعطي دائماً عدداً زوجياً." },
+                { q: "إذا جمعنا عددين زوجيين، فإن الناتج عدد:", options: [{text:"زوجي", isCorrect:true}, {text:"فردي", isCorrect:false}, {text:"أولي", isCorrect:false}, {text:"مؤلف", isCorrect:false}], hint: "مجموع أي عددين زوجيين هو عدد زوجي." },
+                { q: "إذا كان ناتج ضرب أعداد صحيحة هو عدد فردي، فإن جميع تلك الأعداد يجب أن تكون:", options: [{text:"فردية", isCorrect:true}, {text:"زوجية", isCorrect:false}, {text:"أولية", isCorrect:false}, {text:"مختلفة", isCorrect:false}], hint: "لعبة الثقب الأسود: لو وجد عدد زوجي واحد فقط في عملية الضرب لكان الناتج زوجياً. لكي يكون الناتج فردياً يجب أن تكون جميعها فردية." },
+                { q: "مجموع 100 عدد صحيح موجب هو 10000، وعدد الأعداد الفردية فيها أكثر من الزوجية. ما أكبر عدد ممكن للأعداد الزوجية؟", options: [{text:"48", isCorrect:true}, {text:"49", isCorrect:false}, {text:"50", isCorrect:false}, {text:"47", isCorrect:false}], hint: "الزوجية أقل من 50. لو كانت الزوجية 49 ستكون الفردية 51 (مجموعها فردي)، وهذا يناقض أن المجموع 10000 (زوجي). إذن أكبر عدد يحافظ على المجموع الزوجي هو 48." },
+                { q: "ثلاثة أعداد أولية p, q, r تحقق p + q = r و p < q. ما هي قيمة p؟", options: [{text:"2", isCorrect:true}, {text:"3", isCorrect:false}, {text:"5", isCorrect:false}, {text:"لا يمكن التحديد", isCorrect:false}], hint: "لكي نجمع عددين أوليين ويكون الناتج أولياً (فردياً)، يجب أن يكون أحدهما زوجياً. الأولي الزوجي الوحيد والأصغر هو 2." },
+                { q: "إذا كان p^3 + 5 عدداً أولياً، فإن p^5 + 7 سيكون عدداً:", options: [{text:"مؤلفاً", isCorrect:true}, {text:"أولياً", isCorrect:false}, {text:"زوجياً", isCorrect:false}, {text:"لا يمكن التحديد", isCorrect:false}], hint: "إذا كان p فردياً فإن p³+5 سيكون زوجياً (مرفوض لأنه أولي). إذن p يجب أن يكون 2. وعندها 2⁵+7 = 39 وهو عدد مؤلف." },
+                { q: "إذا كان n عدد صحيح موجب بحيث n+3 و n+7 عددان أوليان، أوجد باقي قسمة n على 3.", options: [{text:"1", isCorrect:true}, {text:"0", isCorrect:false}, {text:"2", isCorrect:false}, {text:"لا يمكن التحديد", isCorrect:false}], hint: "لو كان باقي n هو 0 فإن n+3 يقبل على 3. لو كان الباقي 2 فإن n+7 يقبل على 3. إذن الباقي الوحيد الذي يبقيهما أوليين هو 1." },
+                { q: "أصغر عدد مؤلف في الأعداد الصحيحة الموجبة هو:", options: [{text:"4", isCorrect:true}, {text:"1", isCorrect:false}, {text:"2", isCorrect:false}, {text:"6", isCorrect:false}], hint: "الـ 1 ليس أولياً ولا مؤلفاً. الـ 2 و 3 أعداد أولية. إذن أصغر عدد له أكثر من قاسمين هو الـ 4." },
+                { q: "إذا علم أن a, b عددان صحيحان متتاليان، وأن c = ab، و N² = a² + b² + c²، فما نوع العدد N؟", options: [{text:"عدد فردي دائماً", isCorrect:true}, {text:"عدد زوجي دائماً", isCorrect:false}, {text:"مضاعف للعدد 4", isCorrect:false}, {text:"لا يمكن التحديد", isCorrect:false}], hint: "بما أن a,b متتاليان فمربعاتهما مجموعهما فردي. c زوجي فمربعه زوجي. (فردي + زوجي = فردي). N² فردي، إذن N فردي." },
+                { q: "عددان أوليان p, q يحققان 5p + 7q = 129. ما هي القيم الممكنة للمقدار p + q؟", options: [{text:"19 أو 25", isCorrect:true}, {text:"23 فقط", isCorrect:false}, {text:"25 فقط", isCorrect:false}, {text:"29", isCorrect:false}], hint: "إذا كانت q=2 فإن 5p = 115 ومنها p=23 (المجموع 25). وإذا كانت p=2 فإن 7q=119 ومنها q=17 (المجموع 19)." }
             ],
             combinatorics: [
-                { q: "كم عدد صحيح موجب أقل من 1000 لا يحتوي على الرقم 7؟", options: ["648", "728", "729", "800"], answer: 1, hint: "الأعداد أقل من 1000 تتكون من 3 خانات كحد أقصى. لدينا 9 أرقام متاحة (كل الأرقام ما عدا 7). عدد الخيارات = 9 × 9 × 9 = 729. نطرح العدد 000 لأنه ليس موجباً، فيتبقى 728 عدداً." },
-                { q: "بكم طريقة يمكن ترتيب 3 كتب رياضيات، 4 كتب كيمياء، و5 كتب فيزياء (مختلفة) على رف بشرط أن تكون كتب كل موضوع متجاورة؟", options: ["103680", "17280", "5040", "34560"], answer: 0, hint: "نعتبر كل موضوع كتلة واحدة. ترتيب الـ 3 كتل هو 3!. وترتيب الكتب داخل كل كتلة هو 3! و 4! و 5!. الناتج = 3! × 3! × 4! × 5! = 103680." },
-                { q: "كم عدد صحيح فردي موجب مكون من 5 خانات؟", options: ["45000", "50000", "90000", "28125"], answer: 0, hint: "الخانة الأولى (لا تساوي صفر) لها 9 خيارات. الخانات 2، 3، 4 لها 10 خيارات لكل منها. الخانة الأخيرة (للفردي) لها 5 خيارات (1,3,5,7,9). 9 × 10 × 10 × 10 × 5 = 45000." },
-                { q: "كلمة مكونة فقط من A, B, C تسمى 'جيدة' إذا لم يأت A بعد B، ولا B بعد C، ولا C بعد A. كم عدد الكلمات الجيدة المكونة من 7 حروف؟", options: ["128", "192", "2187", "384"], answer: 1, hint: "الحرف الأول له 3 خيارات. كل حرف تالي له خياران فقط (لأننا نستبعد الحرف الممنوع الذي يسبقه). إذن 3 × 2^6 = 3 × 64 = 192 كلمة." },
-                { q: "لدينا لوحة مربعة مقسمة 2026 × 2026. بكم طريقة يمكن تظليل مربع واحد في كل صف وفي كل عمود؟ (بفرض التدوير يعطي أشكالاً مختلفة)", options: ["2026!", "2026", "2026^2", "(2026!)^2"], answer: 0, hint: "هذا يعادل ترتيب رخاء (أو القلعة في الشطرنج) بحيث لا تهاجم بعضها. الصف الأول له 2026 خيار، الثاني 2025، وهكذا. الجواب هو مضروب 2026 (2026!)." }
+                { q: "يقدم مطعم شطائر بـ 3 أحجام، ويمكن طلبها بالجبن، أو بالطماطم، أو بدونهما. بكم طريقة يمكن طلب الشطيرة؟", options: [{text:"9 طرق", isCorrect:true}, {text:"3 طرق", isCorrect:false}, {text:"6 طرق", isCorrect:false}, {text:"12 طريقة", isCorrect:false}], hint: "مبدأ الضرب: لدينا 3 خيارات للحجم، و 3 خيارات للإضافة (جبن، طماطم، سادة). إذن 3 × 3 = 9 طرق." },
+                { q: "يتسابق سلمان وأسامة وخالد. بكم طريقة سينتهي السباق إذا كان ممكناً أن يتعادل اثنان منهم أو أكثر؟", options: [{text:"13 طريقة", isCorrect:true}, {text:"6 طرق", isCorrect:false}, {text:"9 طرق", isCorrect:false}, {text:"27 طريقة", isCorrect:false}], hint: "بدون تعادل: 3! = 6 طرق. تعادل 2 وواحد مختلف: 3 × 2 = 6 طرق. تعادل الثلاثة معاً: طريقة واحدة. المجموع 6 + 6 + 1 = 13 طريقة." },
+                { q: "بكم طريقة يمكن ترتيب 3 كتب رياضيات، 4 كتب كيمياء، و5 كتب فيزياء (مختلفة) على رف بشرط أن تكون كتب كل موضوع متجاورة؟", options: [{text:"103680", isCorrect:true}, {text:"17280", isCorrect:false}, {text:"5040", isCorrect:false}, {text:"34560", isCorrect:false}], hint: "نعتبر كل موضوع كتلة واحدة. ترتيب الـ 3 كتل هو 3!. وترتيب الكتب داخل كل كتلة هو 3! و 4! و 5!. الناتج = 3! × 3! × 4! × 5! = 103680." },
+                { q: "كم عدد صحيح موجب ذو 4 خانات مختلفة يمكن تكوينه (بدون الصفر)؟", options: [{text:"4536", isCorrect:true}, {text:"3024", isCorrect:false}, {text:"5040", isCorrect:false}, {text:"9000", isCorrect:false}], hint: "لدينا 9 أرقام (بدون الصفر). الأولى بـ 9 طرق، والثانية 9 (لوجود الصفر)، والثالثة 8، والرابعة 7. إذن 9 × 9 × 8 × 7 = 4536." },
+                { q: "كم عدد صحيح فردي موجب مكون من 5 خانات؟", options: [{text:"45000", isCorrect:true}, {text:"50000", isCorrect:false}, {text:"90000", isCorrect:false}, {text:"28125", isCorrect:false}], hint: "الخانة الأولى لها 9 خيارات. الخانات 2، 3، 4 لها 10 خيارات لكل منها. الخانة الأخيرة (للفردي) لها 5 خيارات (1,3,5,7,9). 9 × 10 × 10 × 10 × 5 = 45000." },
+                { q: "كم عدد صحيح موجب أقل من 1000 لا يحتوي على الرقم 7؟", options: [{text:"728", isCorrect:true}, {text:"648", isCorrect:false}, {text:"729", isCorrect:false}, {text:"800", isCorrect:false}], hint: "الأعداد أقل من 1000 تتكون من 3 خانات كحد أقصى. لدينا 9 أرقام متاحة. عدد الخيارات = 9 × 9 × 9 = 729. نطرح العدد 000 (ليس موجباً)، يتبقى 728." },
+                { q: "عند كتابة الأعداد من 1 إلى 100 كم مرة سنكرر كتابة الرقم 6؟", options: [{text:"20 مرة", isCorrect:true}, {text:"10 مرات", isCorrect:false}, {text:"19 مرة", isCorrect:false}, {text:"21 مرة", isCorrect:false}], hint: "الرقم 6 يظهر في الآحاد 10 مرات (6, 16, 26...). ويظهر في العشرات 10 مرات (60, 61, 62...). المجموع 10 + 10 = 20 مرة." },
+                { q: "كم عدد الكلمات (ليس بالضرورة لها معنى) المكونة من ترتيب حروف كلمة PRODUCT؟", options: [{text:"5040", isCorrect:true}, {text:"720", isCorrect:false}, {text:"7", isCorrect:false}, {text:"40320", isCorrect:false}], hint: "الكلمة بها 7 حروف مختلفة. عدد طرق الترتيب هو مضروب 7 (7!) = 5040 كلمة." },
+                { q: "كلمة مكونة فقط من A, B, C تسمى 'جيدة' إذا لم يأت A بعد B، ولا B بعد C، ولا C بعد A. كم عدد الكلمات الجيدة المكونة من 7 حروف؟", options: [{text:"192", isCorrect:true}, {text:"128", isCorrect:false}, {text:"2187", isCorrect:false}, {text:"384", isCorrect:false}], hint: "الحرف الأول له 3 خيارات. كل حرف تالي له خياران فقط (لأننا نستبعد الحرف الممنوع الذي يسبقه). إذن 3 × 2^6 = 3 × 64 = 192 كلمة." },
+                { q: "من مجموعة تحتوي على 9 عناصر، كم عدد المجموعات الجزئية غير الخالية التي تحتوي على عدد زوجي من العناصر؟", options: [{text:"255", isCorrect:true}, {text:"256", isCorrect:false}, {text:"128", isCorrect:false}, {text:"127", isCorrect:false}], hint: "عدد المجموعات ذات الحجم الزوجي في مجموعة من n عنصر هو 2^(n-1). إذن 2^8 = 256. نطرح المجموعة الخالية (حجمها 0 وهو زوجي) يتبقى 255 مجموعة." }
             ]
         };
 
@@ -301,9 +313,22 @@
         let examTimer;
         let timeLeft = 0; 
 
+        // دالة لخلط المصفوفات (عشوائية الخيارات والأسئلة)
+        function shuffleArray(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
         function startPractice(category) {
             isExamMode = false;
-            currentQuestions = [...questionBank[category]];
+            let catQuestions = JSON.parse(JSON.stringify(questionBank[category]));
+            // خلط البنك وسحب 10 أسئلة عشوائية من القسم الواحد ليتجدد التدريب
+            currentQuestions = shuffleArray(catQuestions).slice(0, 10);
             document.getElementById('q-category').innerText = categoryNames[category];
             initQuiz();
         }
@@ -311,16 +336,17 @@
         function startExam() {
             isExamMode = true;
             score = 0;
-            // جمع أسئلة عشوائية من الأقسام
             let allQ = [];
-            for (let cat in questionBank) { allQ = allQ.concat(questionBank[cat]); }
-            allQ.sort(() => Math.random() - 0.5);
-            currentQuestions = allQ.slice(0, 10); 
+            for (let cat in questionBank) { 
+                allQ = allQ.concat(JSON.parse(JSON.stringify(questionBank[cat]))); 
+            }
+            // خلط البنك بالكامل وسحب 15 سؤال عشوائي للاختبار الشامل
+            allQ = shuffleArray(allQ);
+            currentQuestions = allQ.slice(0, 15); 
             
             document.getElementById('q-category').innerText = "🏆 " + categoryNames.exam + " 🏆";
             
-            // ضبط المؤقت (15 دقيقة لأسئلة الأولمبياد المتقدمة)
-            timeLeft = 15 * 60;
+            timeLeft = 20 * 60; // 20 دقيقة
             document.getElementById('timer-container').style.display = 'block';
             document.getElementById('timer-container').classList.remove('timer-warning');
             updateTimerDisplay();
@@ -343,11 +369,9 @@
         function timerTick() {
             timeLeft--;
             updateTimerDisplay();
-            
             if (timeLeft <= 60) {
                 document.getElementById('timer-container').classList.add('timer-warning');
             }
-            
             if (timeLeft <= 0) {
                 clearInterval(examTimer);
                 forceEndExam(true);
@@ -372,31 +396,38 @@
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
             
-            qData.options.forEach((opt, index) => {
+            // خلط الخيارات (أ، ب، ج، د) لضمان عدم حفظ الطالب لمكان الإجابة
+            let shuffledOptions = shuffleArray([...qData.options]);
+            
+            shuffledOptions.forEach((opt) => {
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
-                btn.innerText = opt;
-                btn.onclick = () => checkAnswer(index, btn);
+                btn.innerText = opt.text;
+                btn.onclick = () => checkAnswer(opt.isCorrect, btn, optionsContainer);
                 optionsContainer.appendChild(btn);
             });
         }
 
-        function checkAnswer(selectedIndex, btnElement) {
+        function checkAnswer(isCorrect, btnElement, optionsContainer) {
             if(answered) return;
             answered = true;
             
-            const options = document.getElementById('options-container').children;
+            const options = optionsContainer.children;
             for(let btn of options) btn.disabled = true;
 
             const qData = currentQuestions[currentQuestionIndex];
-            const correctIndex = qData.answer;
-            options[correctIndex].classList.add('correct');
+            for(let btn of options) {
+                let correctText = qData.options.find(o => o.isCorrect).text;
+                if(btn.innerText === correctText) {
+                    btn.classList.add('correct');
+                }
+            }
             
             const feedbackBox = document.getElementById('feedback-box');
             const feedbackTitle = document.getElementById('feedback-title');
             const feedbackText = document.getElementById('feedback-text');
             
-            if(selectedIndex === correctIndex) {
+            if(isCorrect) {
                 score++;
                 feedbackBox.className = 'feedback feedback-success show';
                 feedbackTitle.innerText = "إجابة صحيحة! تفكير أولمبي رائع 🏆";
