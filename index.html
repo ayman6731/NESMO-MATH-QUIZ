@@ -6,10 +6,11 @@
     <title>منصة التميز التفاعلية - أولمبياد نسمو</title>
     <style>
         :root {
-            --primary: #4a148c;
-            --secondary: #7c43bd;
+            --primary: #283593;
+            --secondary: #3949ab;
             --accent: #ffb300;
-            --bg: #f3e5f5;
+            --exam: #d32f2f;
+            --bg: #e8eaf6;
             --text: #212121;
             --success: #2e7d32;
             --error: #c62828;
@@ -29,38 +30,80 @@
             color: white;
             width: 100%;
             text-align: center;
-            padding: 20px 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 25px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-        header h1 { margin: 0; font-size: 28px; }
-        header p { margin: 5px 0 0; color: var(--accent); font-weight: bold; }
+        header h1 { margin: 0; font-size: 32px; }
+        header p { margin: 8px 0 0; color: var(--accent); font-weight: bold; font-size: 18px; }
         
         .container {
-            width: 90%;
-            max-width: 800px;
+            width: 95%;
+            max-width: 850px;
             margin: 30px auto;
             background: white;
             border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
         
-        /* Dashboard / Categories */
-        .dashboard { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
+        /* Dashboard */
+        .dashboard { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        .categories-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; width: 100%; }
+        
         .category-card {
             background: var(--primary);
             color: white;
-            width: 45%;
+            width: 46%;
             padding: 20px;
             border-radius: 10px;
             text-align: center;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            transition: 0.3s;
             font-size: 18px;
             font-weight: bold;
             border: none;
         }
-        .category-card:hover { transform: translateY(-5px); background: var(--secondary); }
+        .category-card:hover { transform: translateY(-5px); background: var(--secondary); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        
+        .exam-card {
+            background: linear-gradient(135deg, #d32f2f, #f44336);
+            color: white;
+            width: 95%;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 22px;
+            font-weight: bold;
+            border: 2px solid #b71c1c;
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+            animation: pulse 2s infinite;
+        }
+        .exam-card:hover { transform: scale(1.02); }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(211, 47, 47, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
+        }
+
+        /* Timer */
+        #timer-container {
+            display: none;
+            background: var(--text);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0 auto 20px auto;
+            text-align: center;
+            width: fit-content;
+            letter-spacing: 2px;
+        }
+        .timer-warning { background: var(--error) !important; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.5; } }
         
         /* Quiz Section */
         #quiz-section { display: none; }
@@ -80,66 +123,73 @@
             font-weight: bold;
             font-size: 14px;
         }
-        .question-text { font-size: 20px; font-weight: bold; margin-bottom: 20px; line-height: 1.6; }
+        .question-text { font-size: 22px; font-weight: bold; margin-bottom: 25px; line-height: 1.6; color: #1a237e; }
         
-        .options { display: flex; flex-direction: column; gap: 10px; }
+        .options { display: flex; flex-direction: column; gap: 12px; }
         .option-btn {
-            background: var(--bg);
-            border: 2px solid transparent;
-            padding: 15px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            padding: 16px;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 18px;
             cursor: pointer;
             text-align: right;
-            transition: 0.3s;
+            transition: 0.2s;
             font-family: inherit;
+            font-weight: 500;
         }
-        .option-btn:hover { background: #e1bee7; }
-        .option-btn.correct { background: #c8e6c9; border-color: var(--success); color: var(--success); }
+        .option-btn:hover:not(:disabled) { background: #e8eaf6; border-color: var(--primary); }
+        .option-btn.correct { background: #c8e6c9; border-color: var(--success); color: var(--success); font-weight: bold; }
         .option-btn.wrong { background: #ffcdd2; border-color: var(--error); color: var(--error); }
         
         .feedback {
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: 25px;
+            padding: 20px;
             border-radius: 8px;
             display: none;
             font-size: 16px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         .feedback.show { display: block; animation: fadeIn 0.5s; }
-        .feedback-success { background: #e8f5e9; border-right: 5px solid var(--success); }
-        .feedback-error { background: #ffebee; border-right: 5px solid var(--error); }
+        .feedback-success { background: #e8f5e9; border-right: 6px solid var(--success); }
+        .feedback-error { background: #ffebee; border-right: 6px solid var(--error); }
         
-        .controls { margin-top: 25px; display: flex; justify-content: space-between; }
+        .controls { margin-top: 30px; display: flex; justify-content: space-between; }
         .nav-btn {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 25px;
-            border-radius: 5px;
+            padding: 12px 30px;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
         }
         .nav-btn:hover { background: var(--secondary); }
+        .nav-btn.next { background: var(--accent); color: var(--text); }
+        .nav-btn.next:hover { background: #ffca28; }
         
         /* Result Section */
         #result-section { display: none; text-align: center; }
         .score-circle {
-            width: 150px;
-            height: 150px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
-            background: var(--primary);
-            color: white;
+            background: white;
+            color: var(--primary);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: 45px;
             font-weight: bold;
-            margin: 20px auto;
-            border: 5px solid var(--accent);
+            margin: 30px auto;
+            border: 8px solid var(--primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        .score-circle span { font-size: 20px; color: #757575; margin-top: -10px; }
         
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -152,23 +202,30 @@
     <div class="container">
         <!-- Dashboard -->
         <div id="dashboard" class="dashboard">
-            <button class="category-card" onclick="startQuiz('algebra')">الجبر</button>
-            <button class="category-card" onclick="startQuiz('geometry')">الهندسة</button>
-            <button class="category-card" onclick="startQuiz('number_theory')">نظرية الأعداد</button>
-            <button class="category-card" onclick="startQuiz('combinatorics')">التركيبات ومبادئ العد</button>
+            <button class="exam-card" onclick="startExam()">🏆 بدء الاختبار الشامل (مؤقت ومحسوب الدرجات) 🏆</button>
+            <h3 style="margin: 5px 0; color: #5c6bc0;">أو تدرب حسب القسم:</h3>
+            <div class="categories-grid">
+                <button class="category-card" onclick="startPractice('algebra')">الجبر</button>
+                <button class="category-card" onclick="startPractice('geometry')">الهندسة</button>
+                <button class="category-card" onclick="startPractice('number_theory')">نظرية الأعداد</button>
+                <button class="category-card" onclick="startPractice('combinatorics')">التركيبات ومبادئ العد</button>
+            </div>
         </div>
+
+        <!-- Timer -->
+        <div id="timer-container">⏱️ <span id="time-left">10:00</span></div>
 
         <!-- Quiz Section -->
         <div id="quiz-section">
             <div class="question-header">
                 <span id="q-category" class="category-badge">القسم</span>
-                <span id="q-counter">السؤال 1 / 5</span>
+                <span id="q-counter">السؤال 1 / 10</span>
             </div>
             
             <div id="q-text" class="question-text">نص السؤال هنا</div>
             
             <div id="options-container" class="options">
-                <!-- Options will be injected here -->
+                <!-- Options injected here -->
             </div>
             
             <div id="feedback-box" class="feedback">
@@ -177,77 +234,56 @@
             </div>
             
             <div class="controls">
-                <button class="nav-btn" onclick="goHome()">الرئيسية</button>
-                <button id="next-btn" class="nav-btn" onclick="nextQuestion()" style="display:none;">السؤال التالي</button>
+                <button class="nav-btn" onclick="forceEndExam()">إنهاء / العودة</button>
+                <button id="next-btn" class="nav-btn next" onclick="nextQuestion()" style="display:none;">السؤال التالي ⬅️</button>
             </div>
         </div>
 
         <!-- Result Section -->
         <div id="result-section">
-            <h2>اكتمل الاختبار!</h2>
-            <div class="score-circle" id="final-score">0/0</div>
-            <h3 id="result-msg"></h3>
-            <button class="nav-btn" onclick="goHome()">العودة للأقسام</button>
+            <h2 id="result-title">نتيجة الاختبار</h2>
+            <div class="score-circle">
+                <div id="final-score">0%</div>
+                <span id="score-fraction">0/0</span>
+            </div>
+            <h3 id="result-msg" style="line-height: 1.6; padding: 0 20px;"></h3>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+                <button class="nav-btn" onclick="goHome()">الرئيسية</button>
+                <button class="nav-btn next" onclick="startExam()">إعادة الاختبار للتحسين 🔄</button>
+            </div>
         </div>
     </div>
 
     <script>
+        // بنك الأسئلة الشامل
         const questionBank = {
             algebra: [
-                {
-                    q: "إذا كانت 120% من عدد ما هي 36، فما هو هذا العدد؟",
-                    options: ["25", "30", "40", "43.2"],
-                    answer: 1,
-                    hint: "طريقة الحل السريعة: نكتب التناسب 120 / 100 = 36 / س. بتبسيط 120/100 إلى 6/5، تصبح 6س = 180، إذن س = 30."
-                },
-                {
-                    q: "عددان مجموعهما 42 والفرق بينهما 8، فما هو العدد الأكبر؟",
-                    options: ["17", "21", "25", "34"],
-                    answer: 2,
-                    hint: "طريقة الحل السريعة: لإيجاد العدد الأكبر ذهنياً، نجمع المجموع مع الفرق ونقسم على 2. (42 + 8) / 2 = 50 / 2 = 25."
-                }
+                { q: "إذا كانت 120% من عدد ما هي 36، فما هو هذا العدد؟", options: ["25", "30", "40", "43.2"], answer: 1, hint: "التناسب: 120/100 = 36/س. بتبسيط 120/100 إلى 6/5، تصبح 6س = 180، إذن س = 30." },
+                { q: "عددان مجموعهما 42 والفرق بينهما 8، فما هو العدد الأكبر؟", options: ["17", "21", "25", "34"], answer: 2, hint: "الخدعة الذهنية: لإيجاد الأكبر، نجمع (المجموع + الفرق) ونقسم على 2. (42+8)/2 = 25." },
+                { q: "انخفض سعر سلعة من 2890 ريال إلى 2023 ريال. ما هي نسبة التخفيض؟", options: ["25%", "30%", "35%", "40%"], answer: 1, hint: "مقدار النقص هو 867. النسبة = (867 / 2890) × 100 = 30%." },
+                { q: "حل النظام: س + ص = 13، وَ س - ص = 7. أوجد قيمة س؟", options: ["10", "3", "20", "6"], answer: 0, hint: "بجمع المعادلتين تختفي ص: 2س = 20، إذن س = 10." },
+                { q: "عندما ينقص عدد بنسبة 40% يكون الناتج 36. ما هو العدد الأصلي؟", options: ["50", "60", "70", "76"], answer: 1, hint: "نقص 40% يعني أن المتبقي 60%. إذن 60% من العدد = 36. إذن العدد = (36 × 100)/60 = 60." }
             ],
             geometry: [
-                {
-                    q: "النسبة بين مساحتي مضلعين متشابهين تساوي 16 : 25. ما هي نسبة التشابه بين أطوال أضلاعهما المتناظرة؟",
-                    options: ["4 : 5", "8 : 12.5", "16 : 25", "256 : 625"],
-                    answer: 0,
-                    hint: "القاعدة الذهبية: نسبة المساحات هي (مربع) نسبة الأضلاع. لذا نأخذ الجذر التربيعي للرقمين. جذر 16 هو 4، وجذر 25 هو 5."
-                },
-                {
-                    q: "في مثلثين متشابهين، إذا كان طول ارتفاع المثلث الأول نصف طول ارتفاع المثلث الثاني المناظر له، فإن:",
-                    options: ["المساحة تنصف", "محيط الأول نصف محيط الثاني", "الزوايا تتنصف", "لا يمكن التحديد"],
-                    answer: 1,
-                    hint: "القاعدة: نسبة الارتفاعات المتناظرة هي نفس (نسبة التشابه)، ونسبة التشابه هي نفسها النسبة بين المحيطين."
-                }
+                { q: "النسبة بين مساحتي مضلعين متشابهين تساوي 16 : 25. ما هي نسبة التشابه بين طولَي ضلعين متناظرين؟", options: ["4 : 5", "8 : 12.5", "16 : 25", "256 : 625"], answer: 0, hint: "القاعدة: نسبة المساحات هي (مربع) نسبة الأضلاع. الجذر التربيعي للـ 16 والـ 25 هو 4 : 5." },
+                { q: "في مثلثين متشابهين، إذا كان طول ارتفاع المثلث الأول نصف طول ارتفاع المثلث الثاني المناظر، فإن:", options: ["المساحة تتنصف", "محيط الأول نصف محيط الثاني", "الزوايا تتنصف", "لا يمكن التحديد"], answer: 1, hint: "الارتفاعات والمحيطات والأضلاع تتبع نفس نسبة التشابه الخطية (النصف). أما المساحة فتكون المربع (الربع)." },
+                { q: "مثلثان متطابقا الأضلاع. هل هما متشابهان؟", options: ["مستحيل", "أحياناً", "دائماً", "لا يوجد معلومات كافية"], answer: 2, hint: "المثلثات متطابقة الأضلاع زواياها دائماً 60 درجة، ولتساوي الزوايا (AAA) فهما دائماً متشابهان." },
+                { q: "في المثلث ABC، ينصف AD الزاوية A ويقطع BC في D. إذا كان AB=6 و AC=8 و BC=7، أوجد طول BD؟", options: ["2", "3", "4", "3.5"], answer: 1, hint: "نظرية منصف الزاوية: AB/AC = BD/DC. إذن 6/8 = 3/4. بما أن المجموع 7، فإن BD يأخذ 3 أجزاء، إذن BD = 3." },
+                { q: "مضلعان نسبة التشابه بينهما 3/4 ومحيط الأصغر 15 سم. ما محيط الأكبر؟", options: ["18", "20", "22", "25"], answer: 1, hint: "نسبة المحيطات = نسبة التشابه. 3/4 = 15/محيط الأكبر. بضرب مقص: 3 × محيط = 60، المحيط = 20." }
             ],
             number_theory: [
-                {
-                    q: "إذا جمعنا 51 عدداً فردياً، فإن الناتج سيكون:",
-                    options: ["عدداً زوجياً دائماً", "عدداً فردياً دائماً", "لا يمكن التحديد", "مضاعف للعدد 4"],
-                    answer: 1,
-                    hint: "لعبة المشاغبين: العدد الفردي مشاغب. إذا كان عدد المشاغبين فردياً (51 هو عدد فردي)، فإن المشاغبة تنتصر ويكون الناتج الكلي فردياً."
-                },
-                {
-                    q: "إذا كان ناتج ضرب 100 عدد صحيح هو عدد فردي، فكم عدداً زوجياً على الأقل يوجد بينهم؟",
-                    options: ["1", "50", "99", "صفر"],
-                    answer: 3,
-                    hint: "لعبة الثقب الأسود: في الضرب، بمجرد وجود عدد زوجي واحد فقط سيتحول الناتج بالكامل إلى زوجي. لكي يظل الناتج فردياً، يجب ألا يوجد أي عدد زوجي (صفر)."
-                }
+                { q: "إذا جمعنا 51 عدداً فردياً، فإن الناتج سيكون:", options: ["عدداً زوجياً دائماً", "عدداً فردياً دائماً", "لا يمكن التحديد", "مضاعف للعدد 4"], answer: 1, hint: "لعبة المشاغبين: العدد الفردي مشاغب. إذا كان عدد المشاغبين فردياً (51)، فإن المشاغبة تنتصر ويكون الناتج الكلي فردياً." },
+                { q: "إذا كان ناتج ضرب 100 عدد صحيح هو عدد فردي، فكم عدداً زوجياً على الأقل يوجد بينهم؟", options: ["1", "50", "99", "صفر"], answer: 3, hint: "لعبة الثقب الأسود: في الضرب، بمجرد وجود عدد زوجي واحد سيتحول الناتج بالكامل إلى زوجي. ليظل فردياً، يجب ألا يوجد أي عدد زوجي (صفر)." },
+                { q: "أوجد جميع القيم الصحيحة الموجبة لـ n التي تجعل المقدار (3n + 1) قابلاً للقسمة على (n - 1).", options: ["2 و 3", "1 و 2 و 4", "2 و 3 و 5", "لا يوجد"], answer: 2, hint: "نطرح المضاعف 3(n-1) للتخلص من n. يتبقى 4. قواسم 4 هي 1، 2، 4. بجمع 1 لكل قاسم نجد n = 2، 3، 5." },
+                { q: "أصغر عدد مؤلف في الأعداد الصحيحة الموجبة هو:", options: ["1", "2", "3", "4"], answer: 3, hint: "الـ 1 ليس أولياً ولا مؤلفاً. الـ 2 و 3 أعداد أولية. إذن أصغر عدد له أكثر من قاسمين هو الـ 4." },
+                { q: "ثلاثة أعداد أولية p, q, r تحقق p + q = r و p < q. ما هي قيمة p؟", options: ["2", "3", "5", "لا يمكن التحديد"], answer: 0, hint: "لكي نجمع عددين أوليين (وهي غالباً فردية) ويكون الناتج أولياً، يجب أن يكون أحدهما زوجياً ليتحول المجموع لفردي. الأولي الزوجي الوحيد هو 2." }
             ],
             combinatorics: [
-                {
-                    q: "بكم طريقة يمكن لـ 3 أصدقاء الوقوف في صف واحد لالتقاط صورة؟",
-                    options: ["3 طرق", "6 طرق", "9 طرق", "27 طريقة"],
-                    answer: 1,
-                    hint: "مبدأ التباديل (المضروب): نرتب 3 أشخاص في 3 أماكن = 3! = 3 × 2 × 1 = 6 طرق."
-                },
-                {
-                    q: "يقدم مطعم شطائر بـ 3 أحجام، ويمكن طلبها بالجبن، أو بالطماطم، أو بدونهما. بكم طريقة يمكن طلب الشطيرة؟",
-                    options: ["3 طرق", "6 طرق", "9 طرق", "12 طريقة"],
-                    answer: 2,
-                    hint: "مبدأ الضرب: لدينا 3 خيارات للحجم، و 3 خيارات للإضافة (جبن، طماطم، سادة). إذن 3 × 3 = 9 طرق مختلفة."
-                }
+                { q: "بكم طريقة يمكن لـ 3 أصدقاء الوقوف في صف واحد لالتقاط صورة؟", options: ["3 طرق", "6 طرق", "9 طرق", "27 طريقة"], answer: 1, hint: "مبدأ التباديل (المضروب): نرتب 3 أشخاص في 3 أماكن = 3! = 3 × 2 × 1 = 6 طرق." },
+                { q: "مطعم يقدم شطائر بـ 3 أحجام، ويمكن طلبها بالجبن، أو بالطماطم، أو بدونهما. بكم طريقة يمكن طلب الشطيرة؟", options: ["3 طرق", "6 طرق", "9 طرق", "12 طريقة"], answer: 2, hint: "مبدأ الضرب: لدينا 3 خيارات للحجم، و 3 خيارات للإضافة (جبن، طماطم، سادة). إذن 3 × 3 = 9 طرق." },
+                { q: "كم عدد صحيح موجب مكون من أربع خانات مختلفة يمكن تكوينه من الأرقام (بدون صفر)؟", options: ["3024", "4536", "5040", "9000"], answer: 1, hint: "لدينا 9 أرقام. الخانة الأولى بـ 9 طرق، الثانية 9 (لوجود الصفر لكن معطى بدونه فتصبح 8.. انتظر، الأرقام الكلية 10. الأولى 9 طرق، الثانية 9، الثالثة 8، الرابعة 7. المجموع 4536." },
+                { q: "كم عدد المجموعات الجزئية الممكنة لمجموعة تحتوي على 8 عناصر؟", options: ["8", "64", "128", "256"], answer: 3, hint: "قاعدة المجموعات الجزئية هي 2 أُس ن (2^n). إذن 2^8 = 256 مجموعة جزئية." },
+                { q: "كم عدد الكلمات (ليس بالضرورة لها معنى) المكونة من ترتيب حروف كلمة PRODUCT؟", options: ["7", "720", "5040", "40320"], answer: 2, hint: "الكلمة بها 7 حروف مختلفة. عدد طرق الترتيب هو مضروب 7 (7!) = 5040 كلمة." }
             ]
         };
 
@@ -255,25 +291,76 @@
             algebra: "الجبر",
             geometry: "الهندسة",
             number_theory: "نظرية الأعداد",
-            combinatorics: "التركيبات ومبادئ العد"
+            combinatorics: "التركيبات ومبادئ العد",
+            exam: "الاختبار الشامل"
         };
 
-        let currentCategory = '';
+        let currentQuestions = [];
         let currentQuestionIndex = 0;
         let score = 0;
         let answered = false;
+        
+        let isExamMode = false;
+        let examTimer;
+        let timeLeft = 0; // ثواني
 
-        function startQuiz(category) {
-            currentCategory = category;
+        function startPractice(category) {
+            isExamMode = false;
+            currentQuestions = [...questionBank[category]];
+            document.getElementById('q-category').innerText = categoryNames[category];
+            initQuiz();
+        }
+
+        function startExam() {
+            isExamMode = true;
+            score = 0;
+            // جمع 10 أسئلة عشوائية من كل الأقسام
+            let allQ = [];
+            for (let cat in questionBank) { allQ = allQ.concat(questionBank[cat]); }
+            allQ.sort(() => Math.random() - 0.5);
+            currentQuestions = allQ.slice(0, 10); // 10 أسئلة للاختبار
+            
+            document.getElementById('q-category').innerText = "🏆 " + categoryNames.exam + " 🏆";
+            
+            // ضبط المؤقت (10 دقائق)
+            timeLeft = 10 * 60;
+            document.getElementById('timer-container').style.display = 'block';
+            document.getElementById('timer-container').classList.remove('timer-warning');
+            updateTimerDisplay();
+            
+            clearInterval(examTimer);
+            examTimer = setInterval(timerTick, 1000);
+            
+            initQuiz();
+        }
+
+        function initQuiz() {
             currentQuestionIndex = 0;
             score = 0;
-            
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('result-section').style.display = 'none';
             document.getElementById('quiz-section').style.display = 'block';
-            
-            document.getElementById('q-category').innerText = categoryNames[category];
             loadQuestion();
+        }
+
+        function timerTick() {
+            timeLeft--;
+            updateTimerDisplay();
+            
+            if (timeLeft <= 60) {
+                document.getElementById('timer-container').classList.add('timer-warning');
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(examTimer);
+                forceEndExam(true);
+            }
+        }
+
+        function updateTimerDisplay() {
+            let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            let s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('time-left').innerText = `${m}:${s}`;
         }
 
         function loadQuestion() {
@@ -281,10 +368,8 @@
             document.getElementById('next-btn').style.display = 'none';
             document.getElementById('feedback-box').className = 'feedback';
             
-            const questions = questionBank[currentCategory];
-            const qData = questions[currentQuestionIndex];
-            
-            document.getElementById('q-counter').innerText = `السؤال ${currentQuestionIndex + 1} / ${questions.length}`;
+            const qData = currentQuestions[currentQuestionIndex];
+            document.getElementById('q-counter').innerText = `السؤال ${currentQuestionIndex + 1} / ${currentQuestions.length}`;
             document.getElementById('q-text').innerText = qData.q;
             
             const optionsContainer = document.getElementById('options-container');
@@ -303,11 +388,12 @@
             if(answered) return;
             answered = true;
             
-            const questions = questionBank[currentCategory];
-            const qData = questions[currentQuestionIndex];
-            const correctIndex = qData.answer;
-            
+            // تعطيل باقي الأزرار
             const options = document.getElementById('options-container').children;
+            for(let btn of options) btn.disabled = true;
+
+            const qData = currentQuestions[currentQuestionIndex];
+            const correctIndex = qData.answer;
             options[correctIndex].classList.add('correct');
             
             const feedbackBox = document.getElementById('feedback-box');
@@ -317,11 +403,11 @@
             if(selectedIndex === correctIndex) {
                 score++;
                 feedbackBox.className = 'feedback feedback-success show';
-                feedbackTitle.innerText = "إجابة صحيحة! بطل الأولمبياد 🏆";
+                feedbackTitle.innerText = "إجابة صحيحة! بطل 🏆";
             } else {
                 btnElement.classList.add('wrong');
                 feedbackBox.className = 'feedback feedback-error show';
-                feedbackTitle.innerText = "إجابة خاطئة، لكن لا بأس دعنا نتعلم السر 💡";
+                feedbackTitle.innerText = "إجابة خاطئة! ركز في التوضيح 💡";
             }
             
             feedbackText.innerText = qData.hint;
@@ -329,32 +415,44 @@
         }
 
         function nextQuestion() {
-            const questions = questionBank[currentCategory];
             currentQuestionIndex++;
-            
-            if(currentQuestionIndex < questions.length) {
+            if(currentQuestionIndex < currentQuestions.length) {
                 loadQuestion();
             } else {
                 showResult();
             }
         }
 
+        function forceEndExam(timeout = false) {
+            clearInterval(examTimer);
+            if(timeout) alert("انتهى الوقت! سيتم سحب الورقة وعرض النتيجة.");
+            showResult();
+        }
+
         function showResult() {
+            clearInterval(examTimer);
+            document.getElementById('timer-container').style.display = 'none';
             document.getElementById('quiz-section').style.display = 'none';
             document.getElementById('result-section').style.display = 'block';
             
-            const total = questionBank[currentCategory].length;
-            document.getElementById('final-score').innerText = `${score} / ${total}`;
+            const total = currentQuestions.length;
+            const percentage = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = `${percentage}%`;
+            document.getElementById('score-fraction').innerText = `${score} من ${total}`;
             
             let msg = "";
-            if(score === total) msg = "أداء مثالي! أنت مستعد تماماً لاختبارات نسمو.";
-            else if(score >= total/2) msg = "أداء جيد جداً! بقليل من المراجعة ستصل للقمة.";
-            else msg = "تدريب جيد! راجع طرق الحل السريعة في المذكرة وحاول مرة أخرى.";
+            if(percentage === 100) msg = "أداء مثالي ومذهل! أنت مستعد تماماً لحصد الميداليات في أولمبياد نسمو.";
+            else if(percentage >= 80) msg = "أداء ممتاز! تحتاج فقط لمراجعة بسيطة لبعض الأفكار لتصل للعلامة الكاملة.";
+            else if(percentage >= 50) msg = "جهد جيد، لكن مسائل الأولمبياد تحتاج لتركيز أعلى في قراءة توضيحات الحل السريعة. يمكنك التحسين!";
+            else msg = "لا تيأس! الهدف من المحاكاة هو التعلم من الأخطاء. اقرأ التوضيح بعد كل سؤال وأعد المحاولة.";
             
             document.getElementById('result-msg').innerText = msg;
         }
 
         function goHome() {
+            clearInterval(examTimer);
+            document.getElementById('timer-container').style.display = 'none';
             document.getElementById('quiz-section').style.display = 'none';
             document.getElementById('result-section').style.display = 'none';
             document.getElementById('dashboard').style.display = 'flex';
