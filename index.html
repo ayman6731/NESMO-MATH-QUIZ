@@ -178,4 +178,187 @@
             
             <div class="controls">
                 <button class="nav-btn" onclick="goHome()">الرئيسية</button>
-                <button id="next-btn" class="nav-btn" onclick="next
+                <button id="next-btn" class="nav-btn" onclick="nextQuestion()" style="display:none;">السؤال التالي</button>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result-section">
+            <h2>اكتمل الاختبار!</h2>
+            <div class="score-circle" id="final-score">0/0</div>
+            <h3 id="result-msg"></h3>
+            <button class="nav-btn" onclick="goHome()">العودة للأقسام</button>
+        </div>
+    </div>
+
+    <script>
+        const questionBank = {
+            algebra: [
+                {
+                    q: "إذا كانت 120% من عدد ما هي 36، فما هو هذا العدد؟",
+                    options: ["25", "30", "40", "43.2"],
+                    answer: 1,
+                    hint: "طريقة الحل السريعة: نكتب التناسب 120 / 100 = 36 / س. بتبسيط 120/100 إلى 6/5، تصبح 6س = 180، إذن س = 30."
+                },
+                {
+                    q: "عددان مجموعهما 42 والفرق بينهما 8، فما هو العدد الأكبر؟",
+                    options: ["17", "21", "25", "34"],
+                    answer: 2,
+                    hint: "طريقة الحل السريعة: لإيجاد العدد الأكبر ذهنياً، نجمع المجموع مع الفرق ونقسم على 2. (42 + 8) / 2 = 50 / 2 = 25."
+                }
+            ],
+            geometry: [
+                {
+                    q: "النسبة بين مساحتي مضلعين متشابهين تساوي 16 : 25. ما هي نسبة التشابه بين أطوال أضلاعهما المتناظرة؟",
+                    options: ["4 : 5", "8 : 12.5", "16 : 25", "256 : 625"],
+                    answer: 0,
+                    hint: "القاعدة الذهبية: نسبة المساحات هي (مربع) نسبة الأضلاع. لذا نأخذ الجذر التربيعي للرقمين. جذر 16 هو 4، وجذر 25 هو 5."
+                },
+                {
+                    q: "في مثلثين متشابهين، إذا كان طول ارتفاع المثلث الأول نصف طول ارتفاع المثلث الثاني المناظر له، فإن:",
+                    options: ["المساحة تنصف", "محيط الأول نصف محيط الثاني", "الزوايا تتنصف", "لا يمكن التحديد"],
+                    answer: 1,
+                    hint: "القاعدة: نسبة الارتفاعات المتناظرة هي نفس (نسبة التشابه)، ونسبة التشابه هي نفسها النسبة بين المحيطين."
+                }
+            ],
+            number_theory: [
+                {
+                    q: "إذا جمعنا 51 عدداً فردياً، فإن الناتج سيكون:",
+                    options: ["عدداً زوجياً دائماً", "عدداً فردياً دائماً", "لا يمكن التحديد", "مضاعف للعدد 4"],
+                    answer: 1,
+                    hint: "لعبة المشاغبين: العدد الفردي مشاغب. إذا كان عدد المشاغبين فردياً (51 هو عدد فردي)، فإن المشاغبة تنتصر ويكون الناتج الكلي فردياً."
+                },
+                {
+                    q: "إذا كان ناتج ضرب 100 عدد صحيح هو عدد فردي، فكم عدداً زوجياً على الأقل يوجد بينهم؟",
+                    options: ["1", "50", "99", "صفر"],
+                    answer: 3,
+                    hint: "لعبة الثقب الأسود: في الضرب، بمجرد وجود عدد زوجي واحد فقط سيتحول الناتج بالكامل إلى زوجي. لكي يظل الناتج فردياً، يجب ألا يوجد أي عدد زوجي (صفر)."
+                }
+            ],
+            combinatorics: [
+                {
+                    q: "بكم طريقة يمكن لـ 3 أصدقاء الوقوف في صف واحد لالتقاط صورة؟",
+                    options: ["3 طرق", "6 طرق", "9 طرق", "27 طريقة"],
+                    answer: 1,
+                    hint: "مبدأ التباديل (المضروب): نرتب 3 أشخاص في 3 أماكن = 3! = 3 × 2 × 1 = 6 طرق."
+                },
+                {
+                    q: "يقدم مطعم شطائر بـ 3 أحجام، ويمكن طلبها بالجبن، أو بالطماطم، أو بدونهما. بكم طريقة يمكن طلب الشطيرة؟",
+                    options: ["3 طرق", "6 طرق", "9 طرق", "12 طريقة"],
+                    answer: 2,
+                    hint: "مبدأ الضرب: لدينا 3 خيارات للحجم، و 3 خيارات للإضافة (جبن، طماطم، سادة). إذن 3 × 3 = 9 طرق مختلفة."
+                }
+            ]
+        };
+
+        const categoryNames = {
+            algebra: "الجبر",
+            geometry: "الهندسة",
+            number_theory: "نظرية الأعداد",
+            combinatorics: "التركيبات ومبادئ العد"
+        };
+
+        let currentCategory = '';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        function startQuiz(category) {
+            currentCategory = category;
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('result-section').style.display = 'none';
+            document.getElementById('quiz-section').style.display = 'block';
+            
+            document.getElementById('q-category').innerText = categoryNames[category];
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answered = false;
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('feedback-box').className = 'feedback';
+            
+            const questions = questionBank[currentCategory];
+            const qData = questions[currentQuestionIndex];
+            
+            document.getElementById('q-counter').innerText = `السؤال ${currentQuestionIndex + 1} / ${questions.length}`;
+            document.getElementById('q-text').innerText = qData.q;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            qData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(answered) return;
+            answered = true;
+            
+            const questions = questionBank[currentCategory];
+            const qData = questions[currentQuestionIndex];
+            const correctIndex = qData.answer;
+            
+            const options = document.getElementById('options-container').children;
+            options[correctIndex].classList.add('correct');
+            
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackText = document.getElementById('feedback-text');
+            
+            if(selectedIndex === correctIndex) {
+                score++;
+                feedbackBox.className = 'feedback feedback-success show';
+                feedbackTitle.innerText = "إجابة صحيحة! بطل الأولمبياد 🏆";
+            } else {
+                btnElement.classList.add('wrong');
+                feedbackBox.className = 'feedback feedback-error show';
+                feedbackTitle.innerText = "إجابة خاطئة، لكن لا بأس دعنا نتعلم السر 💡";
+            }
+            
+            feedbackText.innerText = qData.hint;
+            document.getElementById('next-btn').style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            const questions = questionBank[currentCategory];
+            currentQuestionIndex++;
+            
+            if(currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('result-section').style.display = 'block';
+            
+            const total = questionBank[currentCategory].length;
+            document.getElementById('final-score').innerText = `${score} / ${total}`;
+            
+            let msg = "";
+            if(score === total) msg = "أداء مثالي! أنت مستعد تماماً لاختبارات نسمو.";
+            else if(score >= total/2) msg = "أداء جيد جداً! بقليل من المراجعة ستصل للقمة.";
+            else msg = "تدريب جيد! راجع طرق الحل السريعة في المذكرة وحاول مرة أخرى.";
+            
+            document.getElementById('result-msg').innerText = msg;
+        }
+
+        function goHome() {
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('result-section').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
